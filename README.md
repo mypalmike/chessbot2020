@@ -6,11 +6,15 @@ This is a bot that enables people on twitter to play chess against each other.
 
 ## Status
 
-It basically works. It is not routinely running on twitter yet.
+It basically works. It is not routinely running on twitter yet, so don't try to play it quite yet.
 
 ## How to play chess on twitter
 
-Tweet something like "Hey @chessbot2020 please start a new game against @otherUsername239814"
+Once it is live (It's not yet!), just tweet something like "Hey @chessbot2020 please start a new game against @otherUsername239814"
+
+The bot will show a new game board and your opponent will have the first move.
+
+When it's your turn, just reply to the bot with a chess move. Both [Standard Algebraic Notation (SAN)](https://en.wikipedia.org/wiki/Algebraic_notation_(chess)) and [Universal Chess Interface (UCI)](https://en.wikipedia.org/wiki/Universal_Chess_Interface) notation should work. If you're confused, just look at the grid. You can generally just type the starting and ending coordinates, like "e2e3" for moving a pawn forward.
 
 ## FAQ
 
