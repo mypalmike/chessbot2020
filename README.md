@@ -32,6 +32,5 @@ A: This is the reverse of the previous question. The bot uses this as a workarou
 
 ## TODO
 
-* Endgame checks.
 * Unit tests.
-* Better error handling.
+* Verify all error handling cases.

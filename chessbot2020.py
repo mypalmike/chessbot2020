@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 
-import re
-from io import StringIO
-import json
 import logging
-import os
-import random
 import re
-import string
 import sys
 import tempfile
 import time
@@ -75,6 +69,21 @@ class ChessState:
         flipped=not self.board.turn)
     return cairosvg.svg2png(boardsvg)
 
+  def is_check(self):
+    return self.board.is_check()
+
+  def is_game_over(self):
+    return self.board.is_game_over()
+
+  def is_checkmate(self):
+    return self.board.is_checkmate()
+
+  def is_stalemate(self):
+    return self.board.is_stalemate()
+
+  def is_draw(self):
+    return self.is_game_over() and not self.is_stalemate() and not self.is_checkmate()
+
 
 class BotTweet:
 
@@ -116,8 +125,12 @@ class BotTweet:
     return BotTweet(board_state_text, last_move_text, last_move_screen_name,
                     next_move_screen_name)
 
-  def generate_status_text(self):
-    return 'To move: @{}\nLast: {} by @{}\nBoard: "{}"\n'.format(
+  def generate_status_text(self, is_check):
+    check_text = ''
+    if is_check:
+      check_text = 'Check!\n'
+    return '{}To move: @{}\nLast: {} by @{}\nBoard: "{}"\n'.format(
+        check_text,
         self.next_move_screen_name,
         self.last_move_text,
         self.last_move_screen_name,
@@ -180,11 +193,15 @@ class ChessBotListener(tweepy.StreamListener):
           raise UntweetableException('Response is not from next player.')
 
         chess_state = ChessState(old_bot_tweet.board_state_text)
+        if chess_state.is_game_over():
+          raise UntweetableException('Game is already over.')
+
         chess_state.attempt_move(this_move_text)
 
         bot_tweet = BotTweet(chess_state.get_state_text(), this_move_text,
                              old_bot_tweet.next_move_screen_name,
                              old_bot_tweet.last_move_screen_name)
+
         self.tweet_game_state(bot_tweet, chess_state, status.id)
       else:
         logging.warn(
@@ -201,12 +218,22 @@ class ChessBotListener(tweepy.StreamListener):
 
   def tweet_game_state(self, bot_tweet, chess_state, in_reply_to_status_id):
     logging.info('status is {}, in_reply_to_status_id is {}'.format(
-        bot_tweet.generate_status_text(), in_reply_to_status_id))
+        bot_tweet.generate_status_text(chess_state.is_check()), in_reply_to_status_id))
+
+    if chess_state.is_checkmate():
+      status = 'Checkmate! @{} beats @{}'.format(bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
+    elif chess_state.is_stalemate():
+      status = '@{} @{} Game ends in a stalemate.'.format(bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
+    elif chess_state.is_draw():
+      status = '@{} @{} Game ends in a draw.'.format(bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
+    else:
+      status = bot_tweet.generate_status_text(chess_state.is_check())
+
     with tempfile.NamedTemporaryFile(suffix='.png') as f:
       f.write(chess_state.generate_png_data())
       self.api.update_with_media(
           f.name,
-          status=bot_tweet.generate_status_text(),
+          status=status,
           in_reply_to_status_id=in_reply_to_status_id)
 
   def tweet_exception(self, exc, screen_name, in_reply_to_status_id):
@@ -273,7 +300,7 @@ def get_auth_api():
 
 
 def main(argv=sys.argv):
-  logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
+  logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
   logging.warn('Starting')
 
