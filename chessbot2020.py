@@ -47,7 +47,9 @@ class ChessState:
   def attempt_move(self, move_text):
     logging.info('Attempting move {}'.format(move_text))
     if len(move_text) > MAX_MOVE_LENGTH:
-      raise TweetableException('Your tweet did not contain a legal move.\nTo try again, just reply again to my previous tweet.')
+      raise TweetableException(
+          'Your tweet did not contain a legal move.\nTo try again, just reply again to my previous tweet.'
+      )
     try:
       self.last_move = self.board.push_san(move_text)
       return
@@ -59,7 +61,8 @@ class ChessState:
       return
     except:
       raise TweetableException(
-          'Your move "{}" was not a legal move.\nTo try again, just reply again to my previous tweet.'.format(move_text))
+          'Your move "{}" was not a legal move.\nTo try again, just reply again to my previous tweet.'
+          .format(move_text))
 
   def generate_png_data(self):
     boardsvg = chess.svg.board(
@@ -82,7 +85,8 @@ class ChessState:
     return self.board.is_stalemate()
 
   def is_draw(self):
-    return self.is_game_over() and not self.is_stalemate() and not self.is_checkmate()
+    return self.is_game_over(
+    ) and not self.is_stalemate() and not self.is_checkmate()
 
 
 class BotTweet:
@@ -218,23 +222,25 @@ class ChessBotListener(tweepy.StreamListener):
 
   def tweet_game_state(self, bot_tweet, chess_state, in_reply_to_status_id):
     logging.info('status is {}, in_reply_to_status_id is {}'.format(
-        bot_tweet.generate_status_text(chess_state.is_check()), in_reply_to_status_id))
+        bot_tweet.generate_status_text(chess_state.is_check()),
+        in_reply_to_status_id))
 
     if chess_state.is_checkmate():
-      status = 'Checkmate! @{} beats @{}'.format(bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
+      status = 'Checkmate! @{} beats @{}'.format(
+          bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
     elif chess_state.is_stalemate():
-      status = '@{} @{} Game ends in a stalemate.'.format(bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
+      status = '@{} @{} Game ends in a stalemate.'.format(
+          bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
     elif chess_state.is_draw():
-      status = '@{} @{} Game ends in a draw.'.format(bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
+      status = '@{} @{} Game ends in a draw.'.format(
+          bot_tweet.last_move_screen_name, bot_tweet.next_move_screen_name)
     else:
       status = bot_tweet.generate_status_text(chess_state.is_check())
 
     with tempfile.NamedTemporaryFile(suffix='.png') as f:
       f.write(chess_state.generate_png_data())
       self.api.update_with_media(
-          f.name,
-          status=status,
-          in_reply_to_status_id=in_reply_to_status_id)
+          f.name, status=status, in_reply_to_status_id=in_reply_to_status_id)
 
   def tweet_exception(self, exc, screen_name, in_reply_to_status_id):
     status = '@{} {}\nError time: {}'.format(screen_name, str(exc),
