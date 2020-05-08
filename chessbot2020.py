@@ -12,7 +12,7 @@ import chess.svg
 import cairosvg
 
 MAX_MOVE_LENGTH = 20
-IMAGE_SIZE = 335
+IMAGE_SIZE = 600
 MY_NAME = 'chessbot2020'
 MY_ID = '1251065712023531520'
 RE_TO_MOVE = re.compile('To move: @(.*)')
@@ -47,7 +47,7 @@ class ChessState:
   def attempt_move(self, move_text):
     logging.info('Attempting move {}'.format(move_text))
     if len(move_text) > MAX_MOVE_LENGTH:
-      raise TweetableException('Your tweet did not contain a legal move.\nTo try again, just reply again to the previous tweet.')
+      raise TweetableException('Your tweet did not contain a legal move.\nTo try again, just reply again to my previous tweet.')
     try:
       self.last_move = self.board.push_san(move_text)
       return
@@ -59,7 +59,7 @@ class ChessState:
       return
     except:
       raise TweetableException(
-          'Your move "{}" was not a legal move.\nTo try again, just reply again to the previous tweet.'.format(move_text))
+          'Your move "{}" was not a legal move.\nTo try again, just reply again to my previous tweet.'.format(move_text))
 
   def generate_png_data(self):
     boardsvg = chess.svg.board(
