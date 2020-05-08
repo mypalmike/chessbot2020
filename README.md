@@ -4,6 +4,8 @@
 
 This is a bot that enables people on twitter to play chess against each other.
 
+https://twitter.com/chessbot2020
+
 ## Status
 
 "Beta". It is not yet heavily tested, so any feedback is welcome.
@@ -21,6 +23,10 @@ The bot only responds to moves which are replies to board tweets (tweets with im
 Please ♥ some of the bot's tweets while playing. This should improve the bot's reputation on twitter, which will make it less likely that twitter will consider the bot's tweets as spam, which seems to happen occasionally.
 
 ## FAQ
+
+#### Q: My followers don't want to be notified about my chess tweets. What can I do?
+
+A: You should be able to delete your chess-related tweets if you want after the bot has responded to them, and twitter will maintain the reply chain of board states. If you run into issues with the bot related to deleting tweets, please let me know.
 
 #### Q: What should I do if the bot doesn't respond?
 
